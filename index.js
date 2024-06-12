@@ -5,7 +5,7 @@ require("dotenv").config();
 const cors = require("cors");
 const express = require("express");
 const connectDB = require("./connectDB");
-const TripBlog = require("./models/TripBlog");
+const Blogs = require("./models/Blogs");
 
 // ******************************
 // ******** Express App *********
