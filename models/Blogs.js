@@ -38,11 +38,7 @@ const BlogSchema = new Schema({
                 required: true,
             },
         }
-    ],
-    id: {
-        type: String,
-        required: true,
-    }
+    ]
 });
 
 module.exports = mongoose.model("Blog", BlogSchema);
