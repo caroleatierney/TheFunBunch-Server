@@ -11,8 +11,15 @@ const BlogSchema = new Schema({
     required: true,
   },
   date: {
-    type: Date,
+    type: String,
     required: true,
+    validate: {
+      validator: function (v) {
+        return /^(0[1-9]|1[0-2])\/(0[1-9]|[12][0-9]|3[01])\/\d{4}$/.test(v);
+      },
+      message: (props) =>
+        `${props.value} is not a valid date in mm/dd/yyyy format!`,
+    },
   },
   description: {
     type: String,
