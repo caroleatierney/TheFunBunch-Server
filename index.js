@@ -46,25 +46,17 @@ connectDB()
 // ********   St. Lucia  ********
 // ******************************
 // Get all Blogs
-console.log("Before App .get");  
+
 app.get("/api/stluciablogs", async (req, res) => {
-  console.log("After App .get");  
   try {
     const data = await StLuciaBlogs.find({});
-    // res.json(data)
-  console.log("In try");  
-    if (!data) {
-        console.log("In no data");  
-      throw new Error("An error occurred while fetching blogs.");
+    if (!data || data.length === 0) {
+      return res.status(404).json({ message: "No blogs found" });
     }
-        console.log("good 201");  
-    res.status(201).json(data);
+    res.status(200).json(data);
   } catch (error) {
-      console.log("In error");  
-    res
-      .status(500)
-      .json({ error: "An error occurred while fetching blogs..." });
-    return;
+    console.error("Error fetching St. Lucia blogs:", error);
+    res.status(500).json({ error: "An error occurred while fetching blogs" });
   }
 });
 
@@ -84,7 +76,7 @@ app.get("/api/stluciablogs/:id", async (req, res) => {
   }
 });
 
-// Create a blog
+// Create a post
 app.post("/api/stluciablogs", async (req, res) => {
   try {
     const data = await StLuciaBlogs.create(req.body);
@@ -95,7 +87,7 @@ app.post("/api/stluciablogs", async (req, res) => {
   }
 });
 
-// Update a blog
+// Update a post
 app.put("/api/stluciablogs/:id", async (req, res) => {
   try {
     // send data through a body
@@ -110,6 +102,7 @@ app.put("/api/stluciablogs/:id", async (req, res) => {
       blogArray,
     });
     // res.json(data)
+    console.log("Data" + data)
 
     if (!data) {
       throw new Error("An error occurred while updating a blog.");
@@ -123,7 +116,7 @@ app.put("/api/stluciablogs/:id", async (req, res) => {
   }
 });
 
-// Delete a blog by ID
+// Delete a post by ID
 app.delete("/api/stluciablogs/:id", async (req, res) => {
   try {
     const data = await StLuciaBlogs.findByIdAndDelete(req.params.id);
@@ -160,7 +153,7 @@ app.get("/api/grandantiguablogs", async (req, res) => {
   }
 });
 
-// Get blog by ID
+// Get post by ID
 app.get("/api/grandantiguablogs/:id", async (req, res) => {
   try {
     const data = await GrandAntiguaBlogs.findById(req.params.id);
@@ -176,7 +169,7 @@ app.get("/api/grandantiguablogs/:id", async (req, res) => {
   }
 });
 
-// Create a blog
+// Create a post
 app.post("/api/grandantiguablogs", async (req, res) => {
   try {
     const data = await GrandAntiguaBlogs.create(req.body);
@@ -187,7 +180,7 @@ app.post("/api/grandantiguablogs", async (req, res) => {
   }
 });
 
-// Update a blog
+// Update a post
 app.put("/api/grandantiguablogs/:id", async (req, res) => {
   try {
     // send data through a body
@@ -215,7 +208,7 @@ app.put("/api/grandantiguablogs/:id", async (req, res) => {
   }
 });
 
-// Delete a blog by ID
+// Delete a post by ID
 app.delete("/api/grandantiguablogs/:id", async (req, res) => {
   try {
     const data = await GrandAntiguaBlogs.findByIdAndDelete(req.params.id);
