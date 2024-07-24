@@ -7,6 +7,7 @@ const express = require("express");
 const connectDB = require("./connectDB");
 const StLuciaBlogs = require("./models/StLuciaBlogs");
 const GrandAntiguaBlogs = require("./models/GrandAntiguaBlogs");
+const mongoose = require("mongoose");
 
 // ******************************
 // ******** Express App *********
@@ -76,6 +77,62 @@ app.get("/api/stluciablogs/:id", async (req, res) => {
   }
 });
 
+// Get blog array by postId
+app.get("/api/stluciablogs/:id/blogArray", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Check if the id is a valid ObjectId
+    if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).json({ error: 'Invalid blog ID' });
+    }
+
+    const data = await StLuciaBlogs.findById(id, 'blogArray');
+
+    if (!data) {
+      return res.status(404).json({ error: 'Blog not found' });
+    }
+
+    res.status(200).json(data.blogArray);
+  } catch (error) {
+    console.error("Error fetching blogArray:", error);
+    res.status(500).json({ error: "An error occurred while fetching the blogArray." });
+  }
+});
+
+// Get blog array by postId and specific array item
+app.get("/api/stluciablogs/:postId/blogArray/:itemId", async (req, res) => {
+  try {
+    const { postId, itemId } = req.params;
+
+    // Check if the postId and itemId are valid ObjectIds
+    if (
+      !mongoose.isValidObjectId(postId) ||
+      !mongoose.isValidObjectId(itemId)
+    ) {
+      return res.status(400).json({ error: "Invalid ID" });
+    }
+
+    const data = await StLuciaBlogs.findById(postId, "blogArray");
+
+    if (!data) {
+      return res.status(404).json({ error: "Blog not found" });
+    }
+
+    // Find the specific item in the blogArray
+    const item = data.blogArray.find((item) => item._id.toString() === itemId);
+
+    if (!item) {
+      return res.status(404).json({ error: "Blog array item not found" });
+    }
+
+    res.status(200).json(item);
+  } catch (error) {
+    console.error("Error fetching blogArray:", error);
+    res.status(500).json({ error: "An error occurred while fetching the blogArray." });
+  }
+});
+
 // Create a post
 app.post("/api/stluciablogs", async (req, res) => {
   try {
@@ -116,8 +173,8 @@ app.put("/api/stluciablogs/:id", async (req, res) => {
   }
 });
 
-// Delete a post by ID
-app.delete("/api/stluciablogs/:id", async (req, res) => {
+// Delete a post by postId
+app.delete("/api/stluciablogs/:postId", async (req, res) => {
   try {
     const data = await StLuciaBlogs.findByIdAndDelete(req.params.id);
     if (!data) {
@@ -129,6 +186,33 @@ app.delete("/api/stluciablogs/:id", async (req, res) => {
     res
       .status(500)
       .json({ error: "An error occurred while deleting the blog." });
+  }
+});
+
+// Delete a blog by blogId
+app.delete("/api/stluciablogs/:postId/blogArray/:itemId", async (req, res) => {
+  const { postId, itemId } = req.params;
+  try {
+    const result = await StLuciaBlogs.updateOne(
+      { _id: postId },
+      { $pull: { blogArray: { _id: itemId } } }
+    );
+
+    if (result.modifiedCount === 0) {
+      return res
+        .status(404)
+        .json({ error: "Blog item not found or not deleted" });
+    }
+    
+    res.status(200).json({ message: "Blog item deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting blog:", error);
+    res
+      .status(500)
+      .json({
+        error: "An error occurred while deleting the blog item",
+        details: error.message,
+      });
   }
 });
 
