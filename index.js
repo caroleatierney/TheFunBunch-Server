@@ -46,8 +46,8 @@ connectDB()
 // ******************************
 // ********   St. Lucia  ********
 // ******************************
-// Get all Blogs
 
+// Get all Blogs
 app.get("/api/stluciablogs", async (req, res) => {
   try {
     const data = await StLuciaBlogs.find({});
@@ -78,16 +78,16 @@ app.get("/api/stluciablogs/:id", async (req, res) => {
 });
 
 // Get blog array by postId
-app.get("/api/stluciablogs/:id/blogArray", async (req, res) => {
+app.get("/api/stluciablogs/:postId/blogArray", async (req, res) => {
   try {
-    const { id } = req.params;
+    const { postId } = req.params;
 
     // Check if the id is a valid ObjectId
-    if (!mongoose.isValidObjectId(id)) {
+    if (!mongoose.isValidObjectId(postId)) {
       return res.status(400).json({ error: 'Invalid blog ID' });
     }
 
-    const data = await StLuciaBlogs.findById(id, 'blogArray');
+    const data = await StLuciaBlogs.findById(postId, 'blogArray');
 
     if (!data) {
       return res.status(404).json({ error: 'Blog not found' });
@@ -140,18 +140,19 @@ app.post("/api/stluciablogs", async (req, res) => {
     res.status(201).json(data);
   } catch (error) {
     console.error("Error creating blog:", error);
-    res.status(500).json({ error: "An error occurred while creating a blog." });
+    res.status(500).json({ error: "An error occurred while creating a post." });
   }
 });
 
-// Update a post
-app.put("/api/stluciablogs/:id", async (req, res) => {
+// Update a post by postId
+app.put("/api/stluciablogs/:postId", async (req, res) => {
   try {
     // send data through a body
-    const blogId = req.params.id;
+    
+    const postId = req.params.id;
     const { title, image, date, description, blogArray } = req.body;
 
-    const data = await StLuciaBlogs.findByIdAndUpdate(blogId, {
+    const data = await StLuciaBlogs.findByIdAndUpdate(postId, {
       title,
       image,
       date,
@@ -159,19 +160,60 @@ app.put("/api/stluciablogs/:id", async (req, res) => {
       blogArray,
     });
     // res.json(data)
-    console.log("Data" + data)
+    // console.log("Data" + data)
 
     if (!data) {
-      throw new Error("An error occurred while updating a blog.");
+      throw new Error("An error occurred while updating a post.");
     }
     res.status(201).json(data);
   } catch (error) {
     res
       .status(500)
-      .json({ error: "An error occurred while updating a blog..." });
+      .json({ error: "An error occurred while updating a post..." });
     return;
   }
 });
+
+// Update an item in the blogArray by postId and itemId
+app.put("/api/stluciablogs/:postId/blogArray/:itemId", async (req, res) => {
+  try {
+    const { postId, itemId } = req.params;
+
+    // Check if the postId and itemId are valid ObjectIds
+    if (
+      !mongoose.isValidObjectId(postId) ||
+      !mongoose.isValidObjectId(itemId)
+    ) {
+      return res.status(400).json({ error: "Invalid ID" });
+    }
+
+    const { blogName, blogDate, comments, rating } = req.body;
+
+    const data = await StLuciaBlogs.findOneAndUpdate(
+      { _id: postId, "blogArray._id": itemId },
+      {
+        $set: {
+          "blogArray.$.blogName": blogName,
+          "blogArray.$.blogDate": blogDate,
+          "blogArray.$.comments": comments,
+          "blogArray.$.rating": rating,
+        },
+      },
+      { new: true }
+    );
+
+    if (!data) {
+      throw new Error("An error occurred while updating a blog item.");
+    }
+    res.status(200).json(data);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ error: "An error occurred while updating a blog item..." });
+    return;
+  }
+});
+
 
 // Delete a post by postId
 app.delete("/api/stluciablogs/:postId", async (req, res) => {
