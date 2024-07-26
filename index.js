@@ -149,7 +149,7 @@ app.put("/api/stluciablogs/:postId", async (req, res) => {
   try {
     // send data through a body
     
-    const postId = req.params.id;
+    const postId = req.params.postId;
     const { title, image, date, description, blogArray } = req.body;
 
     const updatedPost = await StLuciaBlogs.findByIdAndUpdate(postId, {
@@ -167,7 +167,7 @@ app.put("/api/stluciablogs/:postId", async (req, res) => {
     if (!updatedPost) {
       return res.status(404).json({ error: "Blog not found" });
     }
-    res.status(201).json(data);
+    res.status(200).json(updatedPost);
   } catch (error) {
     console.error("Error updating blog:", error);
     res
@@ -199,51 +199,10 @@ app.put("/api/stluciablogs/:postId/blogArray", async (req, res) => {
   }
 });
 
-// // Update an item in the blogArray by postId and itemId
-// app.put("/api/stluciablogs/:postId/blogArray/:itemId", async (req, res) => {
-//   try {
-//     const { postId, itemId } = req.params;
-
-//     // Check if the postId and itemId are valid ObjectIds
-//     if (
-//       !mongoose.isValidObjectId(postId) ||
-//       !mongoose.isValidObjectId(itemId)
-//     ) {
-//       return res.status(400).json({ error: "Invalid ID" });
-//     }
-
-//     const { blogName, blogDate, comments, rating } = req.body;
-// console.log("blog name" + blogArray.$.blogName);
-//     const data = await StLuciaBlogs.findOneAndUpdate(
-//       { _id: postId, "blogArray._id": itemId },
-//       {
-//         $set: {
-//           "blogArray.$.blogName": blogName,
-//           "blogArray.$.blogDate": blogDate,
-//           "blogArray.$.comments": comments,
-//           "blogArray.$.rating": rating,
-//         },
-//       },
-//       { new: true }
-//     );
-
-//     if (!data) {
-//       throw new Error("An error occurred while updating a blog item.");
-//     }
-//     res.status(200).json(data);
-//   } catch (error) {
-//     res
-//       .status(500)
-//       .json({ error: "An error occurred while updating a blog item..." });
-//     return;
-//   }
-// });
-
-
 // Delete a post by postId
 app.delete("/api/stluciablogs/:postId", async (req, res) => {
   try {
-    const data = await StLuciaBlogs.findByIdAndDelete(req.params.id);
+    const data = await StLuciaBlogs.findByIdAndDelete(req.params.postId);
     if (!data) {
       return res.status(404).json({ error: "Blog not found" });
     }
